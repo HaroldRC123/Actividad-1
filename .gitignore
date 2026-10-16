@@ -1,0 +1,13 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Datos y modelos
+data/
+mlruns/
+*.db
+
+# Archivos de Python
+__pycache__/
+*.pyc
