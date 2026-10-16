@@ -1,4 +1,6 @@
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pandas as pd
 from datetime import datetime, timedelta
 from prefect import task, flow
@@ -14,9 +16,18 @@ def task_cargar_datos(ruta: str):
     return cargar_y_preparar_datos(ruta)
 
 @task(name="2. Entrenar Modelo y Registrar en MLflow")
-def task_entrenar_y_registrar(df: pd.DataFrame, config_modelo: dict, experiment_name: str):
+def task_entrenar_y_registrar(df: pd.DataFrame, config_modelo: dict, config_mlflow: dict):
     modelo, rmse, mae = entrenar_random_forest(df, config_modelo)
-    registrar_experimento(experiment_name, config_modelo, modelo, rmse, mae)
+    
+    # Pasamos el experiment_name y el tracking_uri
+    registrar_experimento(
+        config_mlflow['experiment_name'], 
+        config_mlflow['tracking_uri'], 
+        config_modelo, 
+        modelo, 
+        rmse, 
+        mae
+    )
     return modelo, rmse, mae
 
 @task(name="3. Resumen y Predicción Futura")
@@ -46,6 +57,10 @@ def experimento_flow():
     )
     
     task_generar_resumen(modelo, rmse, mae)
-
+    modelo, rmse, mae = task_entrenar_y_registrar(
+        df_diario, 
+        config['modelo'], 
+        config['mlflow']  # Pasamos el bloque completo de mlflow del YAML
+    )
 if __name__ == "__main__":
     experimento_flow()

@@ -8,3 +8,4 @@ modelo:
 
 mlflow:
   experiment_name: "Forecasting_Ventas_Retail"
+  tracking_uri:"http://192.168.1.50:5000"

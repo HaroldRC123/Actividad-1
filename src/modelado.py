@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+
 
 def entrenar_random_forest(df: pd.DataFrame, config_modelo: dict):
     """Entrena el modelo de regresión y calcula las métricas de error."""
