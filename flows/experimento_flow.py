@@ -53,7 +53,7 @@ def experimento_flow():
     modelo, rmse, mae = task_entrenar_y_registrar(
         df_diario, 
         config['modelo'], 
-        config['mlflow']['experiment_name']
+        config['mlflow']
     )
     
     task_generar_resumen(modelo, rmse, mae)
