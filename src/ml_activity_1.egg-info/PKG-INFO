@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: ml_activity_1
+Version: 0.1.0
+Summary: Pipeline de ML con Prefect y MLflow
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pandas>=2.1.1
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: scikit-learn>=1.3.1
+Requires-Dist: prefect>=2.14.4
+Requires-Dist: mlflow>=2.7.1
