@@ -64,6 +64,7 @@ def entrenar_y_registrar(df, cfg, features_cfg):
             name="model",
             signature=infer_signature(X_test, predicciones),
             input_example=X_test.head(3),
+            serialization_format="cloudpickle"
         )
         run_id = run.info.run_id
 
