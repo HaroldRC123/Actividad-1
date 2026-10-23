@@ -1,0 +1,12 @@
+# Variables que usa el experimento. Cambia `seleccion` para elegir el conjunto.
+#   ALL:     todas las variables (numéricas y categóricas).
+#   NUMERIC: solo las variables numéricas.
+#   CUSTOM:  solo las variables que listes en `custom`.
+seleccion: "ALL"
+
+# Solo se usa cuando seleccion es CUSTOM. Nombres exactos de las columnas del CSV de ventas.
+custom:
+  - dia_semana
+  - dia_mes
+  - mes
+  # (Si tienes otras columnas predictoras en tu CSV, como 'sucursal' o 'precio', puedes agregarlas aquí)
