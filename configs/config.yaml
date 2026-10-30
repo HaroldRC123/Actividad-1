@@ -24,8 +24,11 @@ registro:
   nombre_modelo: "retail-forecasting-modelo"
   # Nota: Como predecimos ventas (regresión), usamos RMSE máximo permitido en lugar de AUC.
   # El modelo solo será "champion" si su RMSE es MENOR a este valor y menor al campeón actual.
-  umbral_rmse: 6000000.0  
+  umbral_rmse: 6000000.0
+  drift_threshold_p_value: 0.05   
 
 inferencia:
   tamano_lote: 100            # Cuántos registros diarios se van a predecir
   carpeta_salida: "data/predicciones"
+
+ 
