@@ -10,7 +10,7 @@ def cargar_umbral_drift(ruta_config="configs/config.yaml"): # Ajusta la ruta si 
     try:
         with open(ruta_config, "r") as f:
             config = yaml.safe_load(f)
-               return config.get("registro", {}).get("drift_threshold_p_value", 0.05)
+            return config.get("registro", {}).get("drift_threshold_p_value", 0.05)
     except FileNotFoundError:
         return 0.05
 
