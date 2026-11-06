@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+scipy
+mlflow
+prefect
+fastapi
+uvicorn
+pydantic
+pyyaml
+pytest
+httpx
