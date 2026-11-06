@@ -111,14 +111,27 @@ y devuelve la predicción de ventas y la versión del modelo:
 ```json
 { "prediccion_ventas": 7824566.76, "version_modelo": "1" }
 ```
-
 ## Tests
 
+Para ejecutar todos los tests:
+
 ```bash
-python -m pytest
+python -m pytest -v
 ```
 
-Los tests de datos (`tests/test_datos.py`) verifican nulos y rangos lógicos (cantidades mayores a 0, ventas no negativas) sobre los lotes de `data/lotes/`. Los de modelo están en `tests/test_modelo.py`.
+Para ejecutar un archivo en particular:
+
+```bash
+python -m pytest tests/test_datos.py -v
+python -m pytest tests/test_modelo.py -v
+python -m pytest tests/test_api.py -v
+```
+
+| Archivo | Qué verifica |
+|---|---|
+| `tests/test_datos.py` | Datos de los lotes en `data/lotes/`: sin nulos y rangos lógicos (cantidades mayores a 0, ventas no negativas) |
+| `tests/test_modelo.py` | Lógica del modelo |
+| `tests/test_api.py` | Endpoints `/health` y `/predict` de la API, usando un modelo falso (no necesita MLflow) |
 
 ## Nota sobre los datos
 
