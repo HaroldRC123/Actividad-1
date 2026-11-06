@@ -20,7 +20,7 @@ def quality_gate():
     # Leer el umbral máximo tolerado en configuración
     with open("configs/config.yaml", "r") as f:
         config = yaml.safe_load(f)
-    umbral = config.get("umbral_rmse", 6000000)
+    umbral = config.get("registro", {}).get("umbral_rmse", 6000000)
 
     # Simulamos el RMSE de un modelo malo que acaba de terminar su entrenamiento
     rmse_nuevo_modelo = 7500000 
