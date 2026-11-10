@@ -15,14 +15,14 @@ Proyecto de la Maestría en Ciencia de Datos, Universidad Santo Tomás (MLOps en
 | Prefect | Orquestación de las pipelines y despliegues (entrenamiento manual, inferencia diaria) |
 | FastAPI | API que sirve el modelo `champion` |
 | SciPy | Prueba de Kolmogorov-Smirnov para detectar drift |
-| Pytest | Tests de datos y modelo |
+| Pytest | Tests de datos, modelo, API y detección de drift |
 
 ## Cómo funciona
 
 1. **Entrenamiento** (`flows/entrenamiento_flow.py`): ingesta, entrenamiento, evaluación y registro en MLflow. El modelo nuevo recibe el alias `champion` solo si su RMSE es menor al umbral (`registro.umbral_rmse`) y además mejora al champion vigente. Si no, el run queda registrado pero el alias no cambia.
 2. **Inferencia** (`flows/inferencia_flow.py`): carga el modelo por el alias `champion` (no por número de versión), predice un lote y guarda las predicciones en `data/predicciones/prediccion_AAAA-MM-DD.csv`. Cada ejecución queda como run en MLflow.
 3. **API** (`api/main.py`): descarga el `champion` al iniciar y expone `GET /health` y `POST /predict`. Si cambia el champion, hay que reiniciar la API.
-4. **Monitoreo de drift** (`flows/monitoreo_drift_flow.py`): compara la distribución de las ventas de un lote nuevo contra un lote de referencia con la prueba KS. Si el p-value es menor al umbral, emite una alerta y lanza el reentrenamiento.
+4. **Monitoreo de drift** (`flows/monitoreo_drift_flow.py`): compara la distribución de las ventas de un lote nuevo contra un lote de referencia con la prueba KS. Si el p-value es menor al umbral, emite una alerta y lanza el reentrenamiento. Los lotes con drift (niveles 0.0, 0.3 y 0.6) los genera `src/generate_data.py` y quedan en `data/lotes/`.
 5. **Quality gate** (`ci_workflow.py`): ejecuta los tests con pytest y bloquea el despliegue si el RMSE del modelo candidato supera el umbral. En la demostración, el RMSE del candidato es un valor simulado (7.500.000).
 6. **Equidad** (`scripts/analisis_equidad.py`): calcula el RMSE por zona y verifica que la desviación entre la mejor y la peor no supere el 15%.
 
@@ -35,7 +35,7 @@ api/         API de FastAPI (main.py)
 configs/     configuración en YAML (config.yaml, features.yaml)
 flows/       pipelines de Prefect: entrenamiento, inferencia, despliegues y monitoreo de drift
 scripts/     carga de datos, reporte de drift y análisis de equidad
-src/         lógica reutilizable: configuración, datos, modelado y tracking
+src/         lógica reutilizable: configuración, datos, modelado, tracking y generación de datos
 tests/       tests con pytest
 notebooks/   exploración inicial
 ```
@@ -74,6 +74,9 @@ export MLFLOW_TRACKING_URI="http://localhost:5000"
 Desde la raíz del repositorio:
 
 ```bash
+# Generar los lotes de ventas con drift (0.0, 0.3 y 0.6) en data/lotes/
+python src/generate_data.py
+
 # Entrenar y, si mejora, promover a champion
 python flows/entrenamiento_flow.py
 
@@ -111,11 +114,13 @@ y devuelve la predicción de ventas y la versión del modelo:
 ```json
 { "prediccion_ventas": 7824566.76, "version_modelo": "1" }
 ```
+
 ## Tests
 
-Para ejecutar todos los tests:
+Los tests de datos leen los lotes de `data/lotes/`, así que primero hay que generarlos y luego ejecutar los tests:
 
 ```bash
+python src/generate_data.py
 python -m pytest -v
 ```
 
@@ -125,13 +130,17 @@ Para ejecutar un archivo en particular:
 python -m pytest tests/test_datos.py -v
 python -m pytest tests/test_modelo.py -v
 python -m pytest tests/test_api.py -v
+python -m pytest tests/test_drift.py -v
 ```
 
 | Archivo | Qué verifica |
 |---|---|
 | `tests/test_datos.py` | Datos de los lotes en `data/lotes/`: sin nulos y rangos lógicos (cantidades mayores a 0, ventas no negativas) |
-| `tests/test_modelo.py` | Lógica del modelo |
+| `tests/test_modelo.py` | Que el modelo `champion` se pueda cargar desde MLflow. Solo se ejecuta si la variable `MLFLOW_TRACKING_URI` está definida |
 | `tests/test_api.py` | Endpoints `/health` y `/predict` de la API, usando un modelo falso (no necesita MLflow) |
+| `tests/test_drift.py` | Lógica de detección de drift: no alerta con la misma distribución, alerta cuando las ventas suben y usa el umbral por defecto si falta el config |
+
+Si `MLFLOW_TRACKING_URI` está definida pero MLflow no está levantado, `test_modelo.py` falla. Para correr los tests sin MLflow, abrir una terminal sin esa variable.
 
 ## Nota sobre los datos
 
